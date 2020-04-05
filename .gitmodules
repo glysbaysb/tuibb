@@ -1,0 +1,6 @@
+[submodule "termbox"]
+	path = third_party/termbox
+	url = https://github.com/nsf/termbox.git
+[submodule "third_party/liblist"]
+	path = third_party/liblist
+	url = https://github.com/mellowcandle/liblist
