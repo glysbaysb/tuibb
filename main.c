@@ -8,8 +8,11 @@ int tuibb_print(int x, int y, const char* text) {
 	assert(x + strlen(text) < tb_width() && "int would go out of terminal");
 	assert(y < tb_height() && "int would go out of terminal");
 
+	struct tb_cell* cells = tb_cell_buffer();
 	for(size_t i = 0; i < strlen(text); i++) {
-		tb_change_cell(x + i, y, text[i], TB_DEFAULT, TB_DEFAULT);
+		struct tb_cell* cell = &cells[y * tb_width() + x + i];
+		cell->ch = text[i];
+		tb_put_cell(x + i, y, cell);
 	}
 
 	return 0;
