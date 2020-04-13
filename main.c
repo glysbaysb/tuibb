@@ -30,10 +30,15 @@ int tb_print_int(int x, int y, int i) {
 	return 0;
 }
 
-int _time() {
-	struct timespec tv;
-	clock_gettime(CLOCK_REALTIME, &tv);
-	return tv.tv_sec;
+void print_timeofday() {
+	time_t currentTimeInt = time(NULL);
+	assert(currentTimeInt != -1);
+	struct tm currentTimeStruct;
+	localtime_r(&currentTimeInt, &currentTimeStruct);
+
+	char buf[3 + 3 + 3 + 1] = {0};
+	strftime(buf, sizeof(buf), "%H:%M:%S", &currentTimeStruct);
+	tuibb_print(0, 1, buf);
 }
 
 int main(int argc, char** argv) {
@@ -52,7 +57,7 @@ int main(int argc, char** argv) {
 	assert(termboxFDs[0] != 0);
 	assert(termboxFDs[1] != 0);
 
-	tb_print_int(0, 0, _time());
+	print_timeofday();
 	tb_present();
 	sleep(2);
 
