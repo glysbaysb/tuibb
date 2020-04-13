@@ -38,7 +38,21 @@ void print_timeofday() {
 
 	char buf[3 + 3 + 3 + 1] = {0};
 	strftime(buf, sizeof(buf), "%H:%M:%S", &currentTimeStruct);
-	tuibb_print(0, 1, buf);
+	tuibb_print(0, tb_height() - 1, buf);
+}
+
+int tb_vertical_line(int x, int yStart, int yLength, uint16_t fg, int bg) {
+	for(int i = 0; i < yLength; i++) {
+		tb_change_cell(x, yStart + i, ' ', fg, bg);
+	}
+	return 0;
+}
+
+int tb_horizontal_line(int xStart, int y, int xLength, uint16_t fg, int bg) {
+	for(int i = 0; i < xLength; i++) {
+		tb_change_cell(xStart + i, y, ' ', fg, bg);
+	}
+	return 0;
 }
 
 int main(int argc, char** argv) {
@@ -57,6 +71,7 @@ int main(int argc, char** argv) {
 	assert(termboxFDs[0] != 0);
 	assert(termboxFDs[1] != 0);
 
+	tb_horizontal_line(0, tb_height() - 1, tb_width(), TB_DEFAULT, TB_GREEN);
 	print_timeofday();
 	tb_present();
 	sleep(2);
