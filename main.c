@@ -28,6 +28,9 @@ int main(int argc, char** argv) {
 	}
 	tb_clear();
 
+	struct TUIBB_CONTEXT* ctx = tuibb_init();
+	assert(ctx);
+
 	int termboxFDs[2] = {0, 0};
 	ret = tb_poll_fds(termboxFDs, 2);
 	assert(ret == 2);

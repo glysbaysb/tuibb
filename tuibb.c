@@ -1,7 +1,12 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <assert.h>
 #include <string.h>
 #include "third_party/termbox/src/termbox.h"
+
+struct TUIBB_CONTEXT {
+	size_t elements;
+};
 
 int tb_vertical_line(int x, int yStart, int yLength, uint16_t fg, int bg) {
 	for(int i = 0; i < yLength; i++) {
@@ -46,3 +51,6 @@ int tb_print_int(int x, int y, int i) {
 	return 0;
 }
 
+struct TUIBB_CONTEXT* tuibb_init() {
+	return calloc(1, sizeof(struct TUIBB_CONTEXT));
+}
