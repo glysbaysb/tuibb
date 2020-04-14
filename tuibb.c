@@ -81,13 +81,15 @@ int tuibb_textbox(int x, int y, int xW, int yW, const char* str) {
 	size_t xPos = 0,
 		   yPos = 0;
 	for(size_t i = 0; i < strlen(str); i++) {
-		struct tb_cell* cellText = &cells[(y + 1 + yPos) * tb_width() + (x + 1 + xPos)];
-		cellText->ch = str[i];
-		tb_put_cell(x + 1 + xPos, y + 1 + yPos, cellText);
-
 		if(str[i] == '\n') {
 			yPos++;
+		} else if(str[i] == '\r') {
+			xPos = 0;
 		} else {
+			struct tb_cell* cellText = &cells[(y + 1 + yPos) * tb_width() + (x + 1 + xPos)];
+			cellText->ch = str[i];
+			tb_put_cell(x + 1 + xPos, y + 1 + yPos, cellText);
+
 			xPos++;
 			if(xPos == xW - 2) {
 				yPos++;
