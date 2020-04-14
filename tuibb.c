@@ -3,9 +3,10 @@
 #include <assert.h>
 #include <string.h>
 #include "third_party/termbox/src/termbox.h"
+#include "third_party/liblist/inc/llist.h"
 
 struct TUIBB_CONTEXT {
-	size_t elements;
+	llist elements;
 };
 
 int tb_vertical_line(int x, int yStart, int yLength, uint16_t fg, int bg) {
@@ -51,6 +52,13 @@ int tb_print_int(int x, int y, int i) {
 	return 0;
 }
 
+
 struct TUIBB_CONTEXT* tuibb_init() {
-	return calloc(1, sizeof(struct TUIBB_CONTEXT));
+	struct TUIBB_CONTEXT* ctx = (struct TUIBB_CONTEXT*)calloc(1, sizeof(struct TUIBB_CONTEXT));
+	assert(ctx);
+
+	ctx->elements = llist_create(NULL, NULL, FLAG_MT_SUPPORT);
+	assert(ctx->elements);
+
+	return ctx;
 }
