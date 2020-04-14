@@ -52,6 +52,51 @@ int tb_print_int(int x, int y, int i) {
 	return 0;
 }
 
+int tuibb_textbox(int x, int y, int xW, int yW, const char* str) {
+	struct tb_cell* cells = tb_cell_buffer();
+
+	/* borders */
+	for(size_t i = 0; i < xW; i++) {
+		const char BORDER = (i == 0 || i == xW-1) ? '+' : '-';
+		struct tb_cell* cellBorder = &cells[y * tb_width() + x + i];
+		cellBorder->ch = BORDER;
+		tb_put_cell(x + i, y, cellBorder);
+
+
+		struct tb_cell* cellBorderBottom = &cells[(y + yW) * tb_width() + x + i];
+		cellBorderBottom->ch = BORDER;
+		tb_put_cell(x + i, (y + yW), cellBorderBottom);
+	}
+	for(size_t i = 1; i < yW; i++) {
+		struct tb_cell* cellBorderLeft = &cells[(y + i) * tb_width() + x];
+		cellBorderLeft->ch = '|';
+		tb_put_cell(x, y + i, cellBorderLeft);
+
+		struct tb_cell* cellBorderRight = &cells[(y + i) * tb_width() + x + xW - 1];
+		cellBorderRight->ch = '|';
+		tb_put_cell(x + xW - 1, y + i, cellBorderRight);
+	}
+
+	/* text */
+	size_t xPos = 0,
+		   yPos = 0;
+	for(size_t i = 0; i < strlen(str); i++) {
+		struct tb_cell* cellText = &cells[(y + 1 + yPos) * tb_width() + (x + 1 + xPos)];
+		cellText->ch = str[i];
+		tb_put_cell(x + 1 + xPos, y + 1 + yPos, cellText);
+
+		if(str[i] == '\n') {
+			yPos++;
+		} else {
+			xPos++;
+			if(xPos == xW - 2) {
+				yPos++;
+				xPos = 0;
+			}
+		}
+	}
+}
+
 
 struct TUIBB_CONTEXT* tuibb_init() {
 	struct TUIBB_CONTEXT* ctx = (struct TUIBB_CONTEXT*)calloc(1, sizeof(struct TUIBB_CONTEXT));
