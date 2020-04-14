@@ -5,6 +5,15 @@
 #include "third_party/termbox/src/termbox.h"
 #include "third_party/liblist/inc/llist.h"
 
+typedef struct TUIBB_ELEMENT {
+	size_t x,
+		  y,
+		  xW,
+		  yW,
+		  id;
+	const char* content;
+} TUIBB_ELEMENT;
+
 struct TUIBB_CONTEXT {
 	llist elements;
 };
@@ -52,7 +61,7 @@ int tb_print_int(int x, int y, int i) {
 	return 0;
 }
 
-int tuibb_textbox(int x, int y, int xW, int yW, const char* str) {
+int tuibb_textbox(struct TUIBB_CONTEXT* ctx, int x, int y, int xW, int yW, const char* str) {
 	struct tb_cell* cells = tb_cell_buffer();
 
 	/* borders */
@@ -97,6 +106,18 @@ int tuibb_textbox(int x, int y, int xW, int yW, const char* str) {
 			}
 		}
 	}
+
+	TUIBB_ELEMENT* el = calloc(1, sizeof(TUIBB_ELEMENT));
+	el->x = x;
+	el->y = y;
+	el->xW = xW;
+	el->yW = yW;
+	el->content = strdup(str);
+
+	el->id = llist_size(ctx->elements);
+
+	llist_add_node(ctx->elements, el, ADD_NODE_REAR);
+	return el->id;
 }
 
 

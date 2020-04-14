@@ -37,10 +37,11 @@ int main(int argc, char** argv) {
 	assert(termboxFDs[0] != 0);
 	assert(termboxFDs[1] != 0);
 
-	tuibb_textbox(0, 0, 20, 20, "abc\r\ndefghijklmnopqrstuvwxyz");
+	tuibb_textbox(ctx, 0, 0, 20, 20, "abc\r\ndefghijklmnopqrstuvwxyz");
 
 	tb_horizontal_line(0, tb_height() - 1, tb_width(), TB_DEFAULT, TB_GREEN);
 	print_timeofday();
+
 	tb_present();
 	sleep(2);
 
