@@ -114,7 +114,7 @@ int tuibb_textbox(struct TUIBB_CONTEXT* ctx, int x, int y, int xW, int yW, const
 	el->yW = yW;
 	el->content = strdup(str);
 
-	el->id = llist_size(ctx->elements);
+	el->id = llist_size(ctx->elements) + 1;
 
 	llist_add_node(ctx->elements, el, ADD_NODE_REAR);
 	return el->id;
