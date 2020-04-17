@@ -2,6 +2,8 @@
 #include <assert.h>
 #include <string.h>
 #include <time.h>
+#include <poll.h>
+#include <errno.h>
 #include "third_party/termbox/src/termbox.h"
 #include "tuibb.h"
 
@@ -42,10 +44,26 @@ int main(int argc, char** argv) {
 
 	tb_horizontal_line(0, tb_height() - 1, tb_width(), TB_DEFAULT, TB_GREEN);
 	print_timeofday();
-
 	tb_present();
-	sleep(2);
+
+	struct pollfd pollfds[2] = {
+		{termboxFDs[0], POLLIN, 0},
+		{termboxFDs[0], POLLIN, 0},
+	};
+	while(poll(pollfds, 2, 2000) >= 0) {
+		if((pollfds[0].revents & POLLIN) == POLLIN) {
+			struct tb_event evt;
+			tb_peek_event(&evt, 0);
+			if(evt.type == TB_EVENT_KEY && evt.ch == 'q') {
+				break;
+			}
+		}
+
+		print_timeofday();
+		tb_present();
+	}
 
 	tb_shutdown();
+
 	return 0;
 }
