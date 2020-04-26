@@ -33,19 +33,26 @@ int main(int argc, char** argv) {
 	struct TUIBB_CONTEXT* ctx = tuibb_init();
 	assert(ctx);
 
-	int termboxFDs[2] = {0, 0};
-	ret = tb_poll_fds(termboxFDs, 2);
-	assert(ret == 2);
-	assert(termboxFDs[0] != 0);
-	assert(termboxFDs[1] != 0);
 
+	/* have some basic layout */
 	int textbox = tuibb_textbox(ctx, 0, 0, 20, 20, "abc\r\ndefghijklmnopqrstuvwxyz");
 	assert(textbox > 0);
+	tb_set_cursor(1, 1);
+
+	int otherTextbox = tuibb_textbox(ctx, 20, 0, 20, 20, "\r\n");
+	assert(otherTextbox > 0);
+	tuibb_print_int(21, 1, otherTextbox);
 
 	tb_horizontal_line(0, tb_height() - 1, tb_width(), TB_DEFAULT, TB_GREEN);
 	print_timeofday();
 	tb_present();
 
+	/* evt loop */
+	int termboxFDs[2] = {0, 0};
+	ret = tb_poll_fds(termboxFDs, 2);
+	assert(ret == 2);
+	assert(termboxFDs[0] != 0);
+	assert(termboxFDs[1] != 0);
 	struct pollfd pollfds[2] = {
 		{termboxFDs[0], POLLIN, 0},
 		{termboxFDs[0], POLLIN, 0},
