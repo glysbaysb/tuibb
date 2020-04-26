@@ -15,8 +15,9 @@ void print_timeofday(struct TUIBB_CONTEXT* ctx) {
 	localtime_r(&currentTimeInt, &currentTimeStruct);
 
 	char buf[3 + 3 + 3 + 1] = {0};
-	strftime(buf, sizeof(buf), "%H:%M:%S", &currentTimeStruct);
-	tuibb_label(ctx, 0, tb_height() - 1, tb_width(), buf);
+	strftime(buf, sizeof(buf), "%H:%M:%S\ntest", &currentTimeStruct);
+	tb_horizontal_line(0, tb_height() - 2, tb_width(), TB_DEFAULT, TB_GREEN);
+	tuibb_label(ctx, 0, tb_height() - 2, tb_width(), buf);
 }
 
 
@@ -42,7 +43,6 @@ int main(int argc, char** argv) {
 	int otherTextbox = tuibb_textbox(ctx, 20, 0, 20, 20, "\r\n");
 	assert(otherTextbox > 0);
 
-	tb_horizontal_line(0, tb_height() - 1, tb_width(), TB_DEFAULT, TB_GREEN);
 	print_timeofday(ctx);
 	tb_present();
 

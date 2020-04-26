@@ -36,7 +36,7 @@ static int tuibb_print_text(int x, int y, int xW, int yW, const char* str) {
 	struct tb_cell* cells = tb_cell_buffer();
 	size_t xPos = 0,
 		   yPos = 0;
-	for(size_t i = 0; i < strlen(str); i++) {
+	for(size_t i = 0; i < strlen(str) && yPos <= yW; i++) {
 		if(str[i] == '\n') {
 			yPos++;
 		} else if(str[i] == '\r') {
