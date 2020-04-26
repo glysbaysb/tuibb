@@ -12,30 +12,18 @@ typedef struct TUIBB_ELEMENT {
 		  yW,
 		  id;
 	const char* content;
+	bool editable;
 } TUIBB_ELEMENT;
 
 struct TUIBB_CONTEXT {
 	llist elements;
 };
 
-int tb_vertical_line(int x, int yStart, int yLength, uint16_t fg, int bg) {
-	for(int i = 0; i < yLength; i++) {
-		tb_change_cell(x, yStart + i, ' ', fg, bg);
-	}
-	return 0;
-}
-
-int tb_horizontal_line(int xStart, int y, int xLength, uint16_t fg, int bg) {
-	for(int i = 0; i < xLength; i++) {
-		tb_change_cell(xStart + i, y, ' ', fg, bg);
-	}
-	return 0;
-}
-
 static int tuibb_print_text(int x, int y, int xW, int yW, const char* str) {
 	struct tb_cell* cells = tb_cell_buffer();
 	size_t xPos = 0,
 		   yPos = 0;
+
 	for(size_t i = 0; i < strlen(str) && yPos <= yW; i++) {
 		if(str[i] == '\n') {
 			yPos++;
@@ -66,6 +54,7 @@ int tuibb_label(struct TUIBB_CONTEXT* ctx, int x, int y, int xW, const char* str
 	el->xW = xW;
 	el->yW = 1;
 	el->content = strdup(str);
+	el->editable = false;
 
 	el->id = llist_size(ctx->elements) + 1;
 
@@ -119,6 +108,7 @@ int tuibb_textbox(struct TUIBB_CONTEXT* ctx, int x, int y, int xW, int yW, const
 	el->xW = xW;
 	el->yW = yW;
 	el->content = strdup(str);
+	el->editable = true;
 
 	el->id = llist_size(ctx->elements) + 1;
 
@@ -126,6 +116,52 @@ int tuibb_textbox(struct TUIBB_CONTEXT* ctx, int x, int y, int xW, int yW, const
 	return el->id;
 }
 
+static void _set_cursor(llist_node node, void *arg) {
+	TUIBB_ELEMENT* el = (TUIBB_ELEMENT*)node;
+	if(el->id == (int)arg) {
+		const size_t BORDER_OFFSET = 1; // how much i need to add, to not put the cursor into the border
+		tb_set_cursor(el->x + BORDER_OFFSET, el->y + BORDER_OFFSET);
+	}
+}
+
+void tuibb_edit(struct TUIBB_CONTEXT* ctx, int id) {
+	llist_for_each_arg(ctx->elements, _set_cursor, (void *)id);
+}
+
+struct COLOR_ELEMENT {
+	int id;
+	uint16_t fg,
+			 bg;
+};
+
+static void _color_element(llist_node node, void *arg_) {
+	struct COLOR_ELEMENT* arg = (struct COLOR_ELEMENT*)arg_;
+	TUIBB_ELEMENT* el = (TUIBB_ELEMENT*)node;
+	if(el->id != arg->id) {
+		return;
+	}
+
+	struct tb_cell* cells = tb_cell_buffer();
+	bool colorBottomBorder = el->yW > 1;
+	for(size_t y = 0; y < el->yW + (int)colorBottomBorder; y++) {
+		for(size_t x = 0; x < el->xW; x++) {
+			struct tb_cell* cell = &cells[(el->x + x) + (el->y + y) * tb_width()];
+			cell->bg = arg->bg;
+			cell->fg = arg->fg;
+
+			tb_put_cell(el->x + x, el->y + y, cell);
+		}
+	}
+}
+
+void tuibb_color_element(struct TUIBB_CONTEXT* ctx, int id, uint16_t fg, int bg) {
+	struct COLOR_ELEMENT arg = {
+		.id = id,
+		.fg = fg,
+		.bg = bg
+	};
+	llist_for_each_arg(ctx->elements, _color_element, (void *)&arg);
+}
 
 struct TUIBB_CONTEXT* tuibb_init() {
 	struct TUIBB_CONTEXT* ctx = (struct TUIBB_CONTEXT*)calloc(1, sizeof(struct TUIBB_CONTEXT));

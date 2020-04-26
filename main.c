@@ -8,7 +8,7 @@
 #include "tuibb.h"
 
 
-void print_timeofday(struct TUIBB_CONTEXT* ctx) {
+int print_timeofday_element(struct TUIBB_CONTEXT* ctx) {
 	time_t currentTimeInt = time(NULL);
 	assert(currentTimeInt != -1);
 	struct tm currentTimeStruct;
@@ -16,8 +16,10 @@ void print_timeofday(struct TUIBB_CONTEXT* ctx) {
 
 	char buf[3 + 3 + 3 + 1] = {0};
 	strftime(buf, sizeof(buf), "%H:%M:%S\ntest", &currentTimeStruct);
-	tb_horizontal_line(0, tb_height() - 2, tb_width(), TB_DEFAULT, TB_GREEN);
-	tuibb_label(ctx, 0, tb_height() - 2, tb_width(), buf);
+
+	int lbl = tuibb_label(ctx, 0, tb_height() - 1, tb_width(), buf);
+	tuibb_color_element(ctx, lbl, TB_DEFAULT, TB_GREEN);
+	return lbl;
 }
 
 
@@ -38,12 +40,13 @@ int main(int argc, char** argv) {
 	/* have some basic layout */
 	int textbox = tuibb_textbox(ctx, 0, 0, 20, 20, "abc\r\ndefghijklmnopqrstuvwxyz");
 	assert(textbox > 0);
-	tb_set_cursor(1, 1);
+	tuibb_edit(ctx, textbox);
 
-	int otherTextbox = tuibb_textbox(ctx, 20, 0, 20, 20, "\r\n");
+	int otherTextbox = tuibb_textbox(ctx, 20, 0, 20, 20, "a\r\nb\r\nc\r\nd\r\ne");
+	tuibb_color_element(ctx, otherTextbox, TB_BOLD | TB_RED, TB_DEFAULT);
 	assert(otherTextbox > 0);
 
-	print_timeofday(ctx);
+	int todLbl = print_timeofday_element(ctx);
 	tb_present();
 
 	/* evt loop */
@@ -65,7 +68,7 @@ int main(int argc, char** argv) {
 			}
 		}
 
-		print_timeofday(ctx);
+		//print_timeofday(ctx); todo: update
 		tb_present();
 	}
 
