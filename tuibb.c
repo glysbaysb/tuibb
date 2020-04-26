@@ -47,7 +47,7 @@ int tuibb_print(int x, int y, const char* text) {
 }
 
 
-int tb_print_int(int x, int y, int i) {
+int tuibb_print_int(int x, int y, int i) {
 	char buf[13] = {0};
 	if(snprintf(buf, sizeof(buf), "%d", i) < 0) {
 		return -1;
