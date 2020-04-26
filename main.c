@@ -8,7 +8,7 @@
 #include "tuibb.h"
 
 
-void print_timeofday() {
+void print_timeofday(struct TUIBB_CONTEXT* ctx) {
 	time_t currentTimeInt = time(NULL);
 	assert(currentTimeInt != -1);
 	struct tm currentTimeStruct;
@@ -16,7 +16,7 @@ void print_timeofday() {
 
 	char buf[3 + 3 + 3 + 1] = {0};
 	strftime(buf, sizeof(buf), "%H:%M:%S", &currentTimeStruct);
-	tuibb_print(0, tb_height() - 1, buf);
+	tuibb_label(ctx, 0, tb_height() - 1, tb_width(), buf);
 }
 
 
@@ -41,10 +41,9 @@ int main(int argc, char** argv) {
 
 	int otherTextbox = tuibb_textbox(ctx, 20, 0, 20, 20, "\r\n");
 	assert(otherTextbox > 0);
-	tuibb_print_int(21, 1, otherTextbox);
 
 	tb_horizontal_line(0, tb_height() - 1, tb_width(), TB_DEFAULT, TB_GREEN);
-	print_timeofday();
+	print_timeofday(ctx);
 	tb_present();
 
 	/* evt loop */
@@ -66,7 +65,7 @@ int main(int argc, char** argv) {
 			}
 		}
 
-		print_timeofday();
+		print_timeofday(ctx);
 		tb_present();
 	}
 

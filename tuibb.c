@@ -32,34 +32,47 @@ int tb_horizontal_line(int xStart, int y, int xLength, uint16_t fg, int bg) {
 	return 0;
 }
 
-int tuibb_print(int x, int y, const char* text) {
-	assert(x + strlen(text) < tb_width() && "int would go out of terminal");
-	assert(y < tb_height() && "int would go out of terminal");
-
+static int tuibb_print_text(int x, int y, int xW, int yW, const char* str) {
 	struct tb_cell* cells = tb_cell_buffer();
-	for(size_t i = 0; i < strlen(text); i++) {
-		struct tb_cell* cell = &cells[y * tb_width() + x + i];
-		cell->ch = text[i];
-		tb_put_cell(x + i, y, cell);
+	size_t xPos = 0,
+		   yPos = 0;
+	for(size_t i = 0; i < strlen(str); i++) {
+		if(str[i] == '\n') {
+			yPos++;
+		} else if(str[i] == '\r') {
+			xPos = 0;
+		} else {
+			struct tb_cell* cellText = &cells[(y + yPos) * tb_width() + (x + xPos)];
+			cellText->ch = str[i];
+			tb_put_cell(x + xPos, y + yPos, cellText);
+
+			xPos++;
+			if(xPos == xW) {
+				yPos++;
+				xPos = 0;
+			}
+		}
 	}
 
 	return 0;
 }
 
+int tuibb_label(struct TUIBB_CONTEXT* ctx, int x, int y, int xW, const char* str) {
+	tuibb_print_text(x, y, xW, 1, str);
 
-int tuibb_print_int(int x, int y, int i) {
-	char buf[13] = {0};
-	if(snprintf(buf, sizeof(buf), "%d", i) < 0) {
-		return -1;
-	}
+	TUIBB_ELEMENT* el = calloc(1, sizeof(TUIBB_ELEMENT));
+	el->x = x;
+	el->y = y;
+	el->xW = xW;
+	el->yW = 1;
+	el->content = strdup(str);
 
-	assert(x + strlen(buf) < tb_width() && "int would go out of terminal");
-	assert(y < tb_height() && "int would go out of terminal");
+	el->id = llist_size(ctx->elements) + 1;
 
-	tuibb_print(x, y, buf);
-
-	return 0;
+	llist_add_node(ctx->elements, el, ADD_NODE_REAR);
+	return el->id;
 }
+
 
 int tuibb_textbox(struct TUIBB_CONTEXT* ctx, int x, int y, int xW, int yW, const char* str) {
 	struct tb_cell* cells = tb_cell_buffer();
@@ -97,27 +110,9 @@ int tuibb_textbox(struct TUIBB_CONTEXT* ctx, int x, int y, int xW, int yW, const
 		tb_put_cell(x + xW - 1, y + i, cellBorderRight);
 	}
 
-	/* text */
-	size_t xPos = 0,
-		   yPos = 0;
-	for(size_t i = 0; i < strlen(str); i++) {
-		if(str[i] == '\n') {
-			yPos++;
-		} else if(str[i] == '\r') {
-			xPos = 0;
-		} else {
-			struct tb_cell* cellText = &cells[(y + 1 + yPos) * tb_width() + (x + 1 + xPos)];
-			cellText->ch = str[i];
-			tb_put_cell(x + 1 + xPos, y + 1 + yPos, cellText);
+	tuibb_print_text(x + 1, y + 1, xW - 2, yW - 2, str); // +1 to get into the box, -2 cuz of the borders
 
-			xPos++;
-			if(xPos == xW - 2) {
-				yPos++;
-				xPos = 0;
-			}
-		}
-	}
-
+	/* add to ctx */
 	TUIBB_ELEMENT* el = calloc(1, sizeof(TUIBB_ELEMENT));
 	el->x = x;
 	el->y = y;
