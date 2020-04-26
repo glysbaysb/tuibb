@@ -22,6 +22,19 @@ int print_timeofday_element(struct TUIBB_CONTEXT* ctx) {
 	return lbl;
 }
 
+void update_timeofday_element(struct TUIBB_CONTEXT* ctx, int elementID) {
+	time_t currentTimeInt = time(NULL);
+	assert(currentTimeInt != -1);
+	struct tm currentTimeStruct;
+	localtime_r(&currentTimeInt, &currentTimeStruct);
+
+	char buf[3 + 3 + 3 + 1] = {0};
+	strftime(buf, sizeof(buf), "%H:%M:%S", &currentTimeStruct);
+
+	tuibb_update_content(ctx, elementID, buf);
+}
+
+
 
 int main(int argc, char** argv) {
 	(void)argc; (void)argv;
@@ -68,7 +81,7 @@ int main(int argc, char** argv) {
 			}
 		}
 
-		//print_timeofday(ctx); todo: update
+		update_timeofday_element(ctx, todLbl);
 		tb_present();
 	}
 

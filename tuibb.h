@@ -27,4 +27,7 @@ void tuibb_edit(struct TUIBB_CONTEXT* ctx, int id);
  */
 void tuibb_color_element(struct TUIBB_CONTEXT* ctx, int id, uint16_t fg, int bg);
 
+
+void tuibb_update_content(struct TUIBB_CONTEXT* ctx, int elementID, const char* buf);
+
 #endif

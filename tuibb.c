@@ -5,6 +5,8 @@
 #include "third_party/termbox/src/termbox.h"
 #include "third_party/liblist/inc/llist.h"
 
+extern char* strdup(const char*);
+
 typedef struct TUIBB_ELEMENT {
 	size_t x,
 		  y,
@@ -172,3 +174,29 @@ struct TUIBB_CONTEXT* tuibb_init() {
 
 	return ctx;
 }
+
+struct UPDATE_CONTENT{
+	int id;
+	const char* buf;
+};
+static void _update_content(llist_node node, void* arg_) {
+	struct UPDATE_CONTENT* arg = (struct UPDATE_CONTENT*)arg_;
+	TUIBB_ELEMENT* el = (TUIBB_ELEMENT*)node;
+	if(el->id == arg->id) {
+		const size_t BORDER_OFFSET = el->yW > 1 ? 1 : 0; // how much i need to add, to not put the cursor into the border
+		tuibb_print_text(el->x + BORDER_OFFSET, el->y + BORDER_OFFSET, el->xW, el->yW, arg->buf);
+	}
+
+	const char* newText = strdup(arg->buf);
+	free(el->content);
+	el->content = newText;
+}
+
+void tuibb_update_content(struct TUIBB_CONTEXT* ctx, int elementID, const char* buf) {
+	struct UPDATE_CONTENT arg = {
+		.id = elementID,
+		.buf = buf
+	};
+	llist_for_each_arg(ctx->elements, _update_content, (void *)&arg);
+}
+
