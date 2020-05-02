@@ -53,10 +53,11 @@ int main(int argc, char** argv) {
 	/* have some basic layout */
 	int textbox = tuibb_textbox(ctx, 0, 0, 20, 20, "abc\r\ndefghijklmnopqrstuvwxyz");
 	assert(textbox > 0);
-	tuibb_edit(ctx, textbox);
 
 	int otherTextbox = tuibb_textbox(ctx, 20, 0, 20, 20, "a\r\nb\r\nc\r\nd\r\ne");
 	tuibb_color_element(ctx, otherTextbox, TB_BOLD | TB_RED, TB_DEFAULT);
+	tuibb_edit(ctx, textbox);
+	int selectedElement = otherTextbox;
 	assert(otherTextbox > 0);
 
 	int todLbl = print_timeofday_element(ctx);
@@ -78,6 +79,18 @@ int main(int argc, char** argv) {
 			tb_peek_event(&evt, 0);
 			if(evt.type == TB_EVENT_KEY && evt.ch == 'q') {
 				break;
+			} else if(evt.type == TB_EVENT_KEY && evt.key == TB_KEY_TAB) {
+				if(selectedElement == otherTextbox) {
+					tuibb_color_element(ctx, textbox, TB_BLUE, TB_DEFAULT);
+					tuibb_color_element(ctx, otherTextbox, TB_DEFAULT, TB_DEFAULT);
+					tuibb_edit(ctx, textbox);
+					selectedElement = textbox;
+				} else {
+					tuibb_color_element(ctx, textbox, TB_DEFAULT, TB_DEFAULT);
+					tuibb_color_element(ctx, otherTextbox, TB_BOLD | TB_RED, TB_DEFAULT);
+					tuibb_edit(ctx, otherTextbox);
+					selectedElement = otherTextbox;
+				}
 			}
 		}
 
